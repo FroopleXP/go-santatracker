@@ -1,3 +1,3 @@
-module froople.net/santatracker
+module github.com/frooplexp/go-santatracker
 
 go 1.19
