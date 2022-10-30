@@ -1,0 +1,13 @@
+{
+  "branches": [
+    { "name": "release" },
+    { "name": "master", "channel": "rc", "prerelease": "rc" }
+  ],
+  "plugins": [
+    ["@semantic-release/commit-analyzer", {
+      "analyzeCommits": true
+    }],
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/git"
+  ]
+}
