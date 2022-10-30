@@ -1,4 +1,4 @@
-package santatracker
+package types
 
 type Weather struct {
 	TempC int `json:"tempC"`

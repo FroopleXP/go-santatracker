@@ -1,4 +1,4 @@
-package santatracker
+package types
 
 type Destination struct {
 	Id                string   `json:"id"`

@@ -1,17 +1,14 @@
 package santatracker
 
 import (
+	_ "embed"
 	"encoding/json"
-	"fmt"
-	"io"
+	"github.com/frooplexp/santatracker/data"
+	"github.com/frooplexp/santatracker/types"
 	"log"
 	"math"
-	"os"
 	"time"
 )
-
-const PresentsDeliveredOverWater float64 = 0.3
-const PresentsDeliveredOverLand float64 = 1 - PresentsDeliveredOverWater
 
 func init() {
 	log.SetFlags(0)
@@ -20,7 +17,7 @@ func init() {
 
 type Tracker struct {
 	currentIndex int
-	locationData *LocationData
+	locationData *types.LocationData
 	timeOffset   int64
 }
 
@@ -56,7 +53,7 @@ func (t *Tracker) getAdjustedTime() int64 {
 	return time.Now().UnixMilli() + t.timeOffset
 }
 
-func (t *Tracker) next() Destination {
+func (t *Tracker) next() types.Destination {
 	lastDestinationIndex := len(t.locationData.Destinations) - 1
 	if t.currentIndex == lastDestinationIndex {
 		return t.locationData.Destinations[lastDestinationIndex]
@@ -64,7 +61,7 @@ func (t *Tracker) next() Destination {
 	return t.locationData.Destinations[t.currentIndex+1]
 }
 
-func (t *Tracker) prev() Destination {
+func (t *Tracker) prev() types.Destination {
 	if t.currentIndex == 0 {
 		return t.locationData.Destinations[0]
 	}
@@ -72,7 +69,7 @@ func (t *Tracker) prev() Destination {
 }
 
 // TODO: Update this to take into account presents delivered over water and land
-func (t *Tracker) calculatePresentsDelivered(now int64, current Destination, next Destination) int64 {
+func (t *Tracker) calculatePresentsDelivered(now int64, current types.Destination, next types.Destination) int64 {
 
 	// How long we've been at this destination
 	fElapsedMs := float64(now - current.Arrival)
@@ -89,7 +86,7 @@ func (t *Tracker) calculatePresentsDelivered(now int64, current Destination, nex
 	return int64(fTotalDeliveredSoFar + float64(current.PresentsDelivered))
 }
 
-func (t *Tracker) GetCurrentLocation() *LocationReport {
+func (t *Tracker) GetCurrentLocation() *types.LocationReport {
 	t.updateIndex()
 
 	now := t.getAdjustedTime()
@@ -98,7 +95,7 @@ func (t *Tracker) GetCurrentLocation() *LocationReport {
 
 	log.Printf("Current: %s, Next: %s", current.City, next.City)
 
-	report := new(LocationReport)
+	report := new(types.LocationReport)
 	report.Position = current.Location
 	report.Next = next
 	report.LastSeen = current
@@ -107,35 +104,21 @@ func (t *Tracker) GetCurrentLocation() *LocationReport {
 
 	// Check if we've departed (flying)
 	if now > current.Departure && now < next.Arrival {
-		report.Status = FLYING
+		report.Status = types.FLYING
 		return report
 	}
 
 	// If we've not departed, we're at a stopover (landed)
-	report.Status = LANDED
+	report.Status = types.LANDED
 	return report
 }
 
+// NewTracker /*
 func NewTracker(xmasNow bool) (*Tracker, error) {
-	var locationData LocationData
-
-	// Read in location data from disk
-	path, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-
-	file, err := os.Open(fmt.Sprintf("%s/data/location.json", path))
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	// FIXME: Update this to now use a non-deprecated method
-	byteResult, _ := io.ReadAll(file)
+	var locationData types.LocationData
 
 	// Map the on disk locations to a JSON object
-	err = json.Unmarshal(byteResult, &locationData)
+	err := json.Unmarshal([]byte(data.LocationJSON), &locationData)
 	if err != nil {
 		return nil, err
 	}

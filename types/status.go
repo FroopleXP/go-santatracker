@@ -1,4 +1,4 @@
-package santatracker
+package types
 
 type Status string
 
