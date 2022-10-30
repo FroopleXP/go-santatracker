@@ -3,8 +3,8 @@ package santatracker
 import (
 	_ "embed"
 	"encoding/json"
+	"github.com/frooplexp/santatracker/data"
 	"github.com/frooplexp/santatracker/types"
-	"io/ioutil"
 	"log"
 	"math"
 	"time"
@@ -119,15 +119,8 @@ func (t *Tracker) GetCurrentLocation() *types.LocationReport {
 func NewTracker(xmasNow bool) (*Tracker, error) {
 	var locationData types.LocationData
 
-	// Read in 'location.json' file
-	// go:embed data/locations.json
-	locations, err := ioutil.ReadFile("data/locations.json")
-	if err != nil {
-		log.Fatal("Failed to read in locations.json", err)
-	}
-
 	// Map the on disk locations to a JSON object
-	err = json.Unmarshal(locations, &locationData)
+	err := json.Unmarshal([]byte(data.LocationJSON), &locationData)
 	if err != nil {
 		return nil, err
 	}
