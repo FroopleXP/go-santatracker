@@ -1,7 +1,6 @@
 package santatracker
 
 import (
-	_ "embed"
 	"encoding/json"
 	"github.com/frooplexp/santatracker/data"
 	"github.com/frooplexp/santatracker/types"
