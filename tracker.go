@@ -10,9 +10,6 @@ import (
 	"time"
 )
 
-const PresentsDeliveredOverWater float64 = 0.3
-const PresentsDeliveredOverLand float64 = 1 - PresentsDeliveredOverWater
-
 func init() {
 	log.SetFlags(0)
 	log.SetPrefix("[Tracker] ")
